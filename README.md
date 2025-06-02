@@ -32,12 +32,12 @@ MindParse is an intelligent web platform that transforms documents into personal
 
 - **Frontend:** React + Tailwind CSS
 - **Backend:** Spring Boot (Java)
-- **AI Services:** Gemini or OpenAI for quiz, summary, and Q&A generation
-- **Storage:** MySQL/PostgreSQL (via Spring Data JPA)
+- **AI Services:** Gemini  for quiz, summary, and Q&A generation
+- **Storage:** MySQL (via Spring Data JPA)
 - **Authentication:** JWT-based login/register system
 - **File Parsing:** Apache Tika / custom parsing for PDF, DOCX, TXT
 
 ---
 
-## 📂 Project Structure
+
 
