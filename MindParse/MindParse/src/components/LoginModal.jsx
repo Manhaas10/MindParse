@@ -5,16 +5,38 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Mail, Lock } from "lucide-react";
 import { Brain } from "lucide-react";
-
+import api from '@/api/axios';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
-    const handleLogin = (e) => {
+    const navigate = useNavigate();
+    const handleLogin = async(e) => {
         e.preventDefault();
         // TODO: Implement actual login logic
-        onClose();
+        try{
+            const response = await api.post('/users/login', {
+                email: email,
+                password: password
+            });
+            const result = response.data;
+            if (response.status === 200) {
+                toast.success(result);
+                
+                  onClose();
+                  navigate('/dashboard');
+
+            } else {
+                console.log("Login failed:", response.status);
+                toast.error(`Login failed: ${result}`);
+            }
+        }
+        catch (error) {
+            console.error("Login error:", error);
+            toast.error("An error occurred during login. Please try again.");
+        }
     };
 
     return (

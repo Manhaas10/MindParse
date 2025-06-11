@@ -4,23 +4,39 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Mail, Lock, User } from "lucide-react";
-
-
+import api from '@/api/axios';
+import { toast } from 'react-hot-toast';
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords don't match!");
+  const handleRegister = async (e) => {
+   e.preventDefault();
+   if(password !== confirmPassword) {
+      toast.error("Passwords don't match!");
       return;
     }
-    console.log("Register attempt:", { name, email, password });
-    // TODO: Implement actual registration logic
-    onClose();
+    try{
+      const response = await api.post('/users/register', {
+        fullName: name,
+      email: email,
+      password: password
+      });
+      const result =  response.data;
+   if (response.status === 200) {
+  toast.success(result);
+  onClose();
+} else {
+  toast.error(`Registration failed: ${result}`);
+}
+
+    }
+    catch (error) {
+      console.error("Registration error:", error);
+      toast.error("An error occurred during registration. Please try again.");
+    }
   };
 
   return (
