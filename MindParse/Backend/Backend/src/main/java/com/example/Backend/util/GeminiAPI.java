@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 @Component
 public class GeminiAPI {
@@ -32,6 +33,7 @@ public class GeminiAPI {
             if (promptText.length() > 10000) {
                 promptText = promptText.substring(0, 10000);
             }
+            // promptText = "Whenever you want to show something in a new line, mention \\n.\n" + promptText;
 
             // Create JSON request body using Jackson
             ObjectMapper mapper = new ObjectMapper();
@@ -78,11 +80,76 @@ public class GeminiAPI {
             if (textNode.isMissingNode() || textNode.isNull()) {
                 return "Summary text missing in response.";
             }
+            System.err.println(("Generated summary: " + textNode.asText()));
 
             return textNode.asText();
 
         } catch (Exception e) {
             e.printStackTrace(); // Optional: Log error
+            return "Error generating summary: " + e.getMessage();
+        }
+    }
+     public String generateSummaryconv(List<String[]> conversationHistory) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode root = mapper.createObjectNode();
+            ArrayNode contents = mapper.createArrayNode();
+
+            for (String[] message : conversationHistory) {
+                if (message.length != 2) continue; // Skip invalid entries
+
+                String role = message[0];
+                String text = message[1];
+
+                ObjectNode messageNode = mapper.createObjectNode();
+                messageNode.put("role", role);
+
+                ArrayNode parts = mapper.createArrayNode();
+                ObjectNode part = mapper.createObjectNode();
+                part.put("text", text);
+                parts.add(part);
+
+                messageNode.set("parts", parts);
+                contents.add(messageNode);
+            }
+
+            root.set("contents", contents);
+            String requestBody = mapper.writeValueAsString(root);
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String responseBody = response.body();
+
+            // Debug log
+
+            // Parse Gemini API response
+            JsonNode rootNode = mapper.readTree(responseBody);
+            JsonNode candidates = rootNode.path("candidates");
+
+            if (!candidates.isArray() || candidates.isEmpty()) {
+                return "Service unavailable";
+            }
+
+            JsonNode partsNode = candidates.get(0).path("content").path("parts");
+            if (!partsNode.isArray() || partsNode.isEmpty()) {
+                return "Service unavailable";
+            }
+
+            JsonNode textNode = partsNode.get(0).path("text");
+            if (textNode.isMissingNode() || textNode.isNull()) {
+                return "Service unavailable";
+            }
+
+            return textNode.asText();
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return "Error generating summary: " + e.getMessage();
         }
     }

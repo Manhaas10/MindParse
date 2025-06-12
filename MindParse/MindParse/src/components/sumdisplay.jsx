@@ -53,7 +53,7 @@ const SummaryDisplay = ({ summary, onBackToGenerator }) => {
           </CardTitle>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
             <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full font-medium">
-              {summary.level} Level
+              {summary.level}
             </span>
             <span>Document: {summary.fileName}</span>
             <span>Words: {summary.wordCount}</span>
@@ -93,15 +93,6 @@ const SummaryDisplay = ({ summary, onBackToGenerator }) => {
               Download
             </Button>
             
-            <Button
-              onClick={onBackToGenerator}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              <RotateCcw className="h-4 w-4" />
-              New Summary
-            </Button>
           </div>
 
           {/* Summary Content */}

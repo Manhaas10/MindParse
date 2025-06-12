@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, Loader2 } from "lucide-react";
-
+import api from '@/api/axios';
+import { toast } from 'react-hot-toast';
 
 
 const SummarizerGenerator = ({ onSummaryGenerated }) => {
@@ -25,54 +26,49 @@ const SummarizerGenerator = ({ onSummaryGenerated }) => {
     }
   };
 
-  const generateSummary = async (file, level) => {
-  await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate API call
+const handleGenerateSummary = async () => {
+  if (!selectedFile) {
+    alert('Please select a file first.');
+    return;
+  }
 
-  const mockSummaries = [
-    {
-      level: "Brief",
-      content: `Brief Summary of ${file.name}:\n\nThis document covers the main concepts and key points in a concise format. The primary focus areas include fundamental principles, essential methodologies, and critical outcomes. Key takeaways highlight the most important aspects that readers should understand and remember.`
-    },
-    {
-      level: "Moderate",
-      content: `Moderate Summary of ${file.name}:\n\nThis comprehensive document explores various aspects of the subject matter with detailed explanations and examples. The content is structured to provide readers with a thorough understanding of the topic, including background information, detailed analysis, and practical applications.\n\nKey sections include:\n• Introduction and overview of core concepts\n• Detailed methodology and approach\n• Analysis of findings and results\n• Practical implications and recommendations\n\nThe document emphasizes the importance of understanding both theoretical foundations and practical applications, making it valuable for both academic and professional contexts.`
-    },
-    {
-      level: "Detailed",
-      content: `Detailed Summary of ${file.name}:\n\nThis extensive document provides a comprehensive examination of the subject matter, offering in-depth analysis, detailed explanations, and thorough coverage of all relevant aspects. The content is meticulously organized to ensure readers gain a complete understanding of the topic from multiple perspectives.\n\nDetailed sections include:\n\n1. **Introduction and Background**\n   - Historical context and development\n   - Current state of the field\n   - Emerging trends and future directions\n\n2. **Methodology and Framework**\n   - Detailed explanation of approaches used\n   - Step-by-step procedures and protocols\n   - Tools and resources utilized\n\n3. **Comprehensive Analysis**\n   - In-depth examination of findings\n   - Statistical analysis and interpretation\n   - Comparison with existing research\n\n4. **Practical Applications**\n   - Real-world implementation strategies\n   - Case studies and examples\n   - Best practices and recommendations\n\n5. **Conclusions and Future Work**\n   - Summary of key findings\n   - Implications for the field\n   - Suggested areas for further research\n\nThis document serves as a valuable resource for researchers, practitioners, and anyone seeking a thorough understanding of the subject matter.`
-    }
-  ];
+  const userEmail = localStorage.getItem("userEmail"); // or get from context/session
+  if (!userEmail) {
+    alert("User email not found. Please login.");
+    return;
+  }
 
-  const selectedSummary = mockSummaries.find(s => s.level === level);
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+  formData.append('level', summaryLevel);
+  formData.append('email', userEmail);
 
-  return {
-    title: `${level} Summary`,
-    fileName: file.name,
-    level: level,
-    content: selectedSummary ? selectedSummary.content : "",
-    wordCount: selectedSummary ? selectedSummary.content.split(/\s+/).filter(Boolean).length : 0,
-    generatedAt: new Date().toLocaleString()
-  };
+  setIsLoading(true);
+  try {
+    const response = await api.post("/summarize", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const summaryData = response.data;
+    onSummaryGenerated({
+      title: `${summaryData.summaryLevel} Summary`,
+      fileName: summaryData.fileName,
+      level: summaryData.summaryLevel,
+      content: summaryData.summaryText,
+      wordCount: summaryData.summaryText.split(/\s+/).filter(Boolean).length,
+      generatedAt: new Date(summaryData.createdAt).toLocaleString(),
+    });
+
+  } catch (error) {
+    console.error("Error generating summary:", error);
+    toast.error("Failed to generate summary. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
 };
 
-
-  const handleGenerateSummary = async () => {
-    if (!selectedFile) {
-      alert('Please select a file first.');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const summary = await generateSummary(selectedFile, summaryLevel);
-      onSummaryGenerated(summary);
-    } catch (error) {
-      console.error('Error generating summary:', error);
-      alert('Failed to generate summary. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="max-w-2xl mx-auto p-6">

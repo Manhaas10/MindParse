@@ -15,6 +15,8 @@ import QuizGenerator from "@/components/quizgen";
 import QuizDisplay from "@/components/quizdisplay";
 import { useTheme } from "@/contexts/ThemeContext";
 import { HelpCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { MessageSquare } from "lucide-react";
 const Quiz = () => {
   const [currentQuiz, setCurrentQuiz] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -23,7 +25,7 @@ const Quiz = () => {
   const [quizResults, setQuizResults] = useState(null);
   const { theme, toggleTheme } = useTheme();
   const userName = "Sahnam";
-
+const navigate = useNavigate();
   // Mock previous quizzes data with results
   const previousQuizzes = [
     { 
@@ -154,7 +156,13 @@ const Quiz = () => {
   };
 
   const handleLogout = () => {
+    // Ensure theme is set to light (white mode) on logout
+    if (theme === "dark") {
+      toggleTheme();
+    }
+    navigate("/");
     console.log("Logout clicked");
+    // TODO: Implement actual logout logic
   };
 
   const sidebarItems = [
@@ -162,6 +170,7 @@ const Quiz = () => {
     { icon: PenTool, label: "Quiz Generator", href: "/quiz", active: true  },
     { icon: FileText, label: "Content Summarizer", href: "/summarizer" },
     { icon: HelpCircle, label: "PDF Questions", href: "/pdf-questions" },
+    { icon: MessageSquare, label: "Doubt Solver", href: "/doubt-solver" },
     { icon: History, label: "History", href: "/history" },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];
@@ -247,11 +256,12 @@ const Quiz = () => {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
-        <aside className={`${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:translate-x-0 fixed md:relative z-40 w-64 h-screen bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 transition-all duration-200 ease-in-out`}>
+       <aside className={`fixed md:relative z-40 top-0 left-0 h-full w-64 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm border-r border-gray-200 dark:border-gray-700 transition-transform duration-300 ease-in-out transform ${
+  isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+} md:translate-x-0`}>
+
           <nav className="p-4 space-y-2">
             {sidebarItems.map((item) => (
               <Link

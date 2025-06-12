@@ -36,9 +36,9 @@ public class SummarizerController {
 
         try {
             // 1. Upload file to Cloudinary and get URL
-            String fileUrl = cloudinaryService.uploadFile(file);
+            // String fileUrl = cloudinaryService.uploadFile(file);
+            String fileUrl = file.getOriginalFilename();
             log.info("File uploaded to Cloudinary: {}", fileUrl);
-
             // 2. Extract text content from uploaded file
             String content = fileProcessingService.extractText(file);
             log.info("Extracted content length: {}", content.length());

@@ -1,45 +1,46 @@
 
 import { FileQuestion, FileText, Zap, Target } from "lucide-react";
 import { PenTool, HelpCircle, Brain, Shield } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 const Features = () => {
   const features = [
-   {
+    {
       icon: PenTool,
       title: "Quiz Generator",
       description: "Transform your documents into interactive quizzes. Create personalized assessments that adapt to different difficulty levels and track your learning progress.",
       gradient: "from-green-500 to-emerald-500"
-    },
-    {
+     },
+     {
       icon: FileText,
       title: "Content Summarizer", 
       description: "Get intelligent, concise summaries of lengthy documents. Our AI analyzes key concepts and presents them in digestible formats to save you time.",
       gradient: "from-blue-500 to-purple-500"
-    },
-    {
+     },
+     {
       icon: HelpCircle,
       title: "PDF Question Generator",
       description: "Generate thoughtful questions from PDF documents at various difficulty levels. Perfect for study preparation and comprehension testing.",
       gradient: "from-purple-500 to-pink-500"
-    },
-    {
+     },
+     {
+      icon: MessageSquare,
+      title: "Doubt Solver",
+      description: "Get instant answers to your questions or upload documents for AI-powered explanations. Continue conversations to clarify complex concepts.",
+      gradient: "from-pink-500 to-red-500"
+     },
+     {
       icon: Brain,
       title: "AI-Powered Intelligence",
       description: "Leveraging advanced machine learning algorithms to understand context, extract meaning, and generate relevant educational content tailored to your needs.",
       gradient: "from-indigo-500 to-purple-500"
-    },
-    {
+     },
+     {
       icon: Zap,
       title: "Lightning Fast",
       description: "Process documents in seconds, not minutes. Our optimized AI pipeline ensures you get results quickly without compromising on quality or accuracy.",
       gradient: "from-yellow-500 to-orange-500"
-    },
-    {
-      icon: Shield,
-      title: "Secure & Private",
-      description: "Your documents are processed securely with enterprise-grade encryption. We respect your privacy and never store your sensitive information.",
-      gradient: "from-red-500 to-pink-500"
-    }
-  ];
+     }
+    ];
 
   return (
     <section className="py-20 bg-white">

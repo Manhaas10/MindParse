@@ -41,7 +41,8 @@ const Header = ({onLogin,onRegister}) => {
                     <Button
                     onClick={onLogin}
                     variant="outline"
-                    size="sm">
+                    size="sm"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 transition-colors">
                             Login
                     </Button>
                     <Button

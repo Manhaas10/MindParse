@@ -5,7 +5,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, XCircle, RotateCcw } from "lucide-react";
 
-
+import api from '@/api/axios';
+// Assuming you have a user context or hook
 
 const QuizDisplay = ({ 
   quiz, 
@@ -25,17 +26,37 @@ const QuizDisplay = ({
     }));
   };
 
-  const handleSubmit = () => {
-    let correctCount = 0;
-    quiz.questions.forEach(question => {
-      if (answers[question.id] === question.correctAnswer) {
-        correctCount++;
-      }
+
+const handleSubmit = async () => {
+  let correctCount = 0;
+  const resultsPayload = [];
+  const email = localStorage.getItem("userEmail");
+
+  quiz.questions.forEach((question) => {
+    const userAnswer = answers[question.id];
+    const isCorrect = userAnswer === question.correctAnswer;
+
+    if (isCorrect) correctCount++;
+
+    resultsPayload.push({       // adjust based on your auth
+      email: email,          // assumed available
+      question: question.question,
+      correctAnswer: question.correctAnswer,
+      userAnswer,
+      isCorrect,
     });
-    
+  });
+
+  try {
+    await api.post("/quiz/submit", resultsPayload); // ✅ POST to backend
     setScore(correctCount);
     setShowResults(true);
-  };
+  } catch (error) {
+    console.error("Failed to submit results:", error);
+    // optionally show toast or error UI
+  }
+};
+
 
   const resetQuiz = () => {
     setAnswers({});
@@ -147,7 +168,7 @@ const QuizDisplay = ({
             Difficulty: <span className="font-semibold text-blue-600">{quiz.difficulty}</span>
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Answer all {quiz.questions.length} questions and click Submit to see your results
+            Answer all  questions and click Submit to see your results
           </p>
         </CardHeader>
         
@@ -167,7 +188,7 @@ const QuizDisplay = ({
                     <div key={optionIndex} className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={optionIndex.toString()}
-                        id={`q${question.id}-option${optionIndex}`}
+                        id={`q${question.id}-option${optionIndex+1}`}
                       />
                       <Label
                         htmlFor={`q${question.id}-option${optionIndex}`}

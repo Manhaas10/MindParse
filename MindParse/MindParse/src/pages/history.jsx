@@ -15,7 +15,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useTheme } from "@/contexts/ThemeContext";
 import { useToast } from "@/hooks/use-toast";
 import { HelpCircle } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const HistoryPage = () => {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [historyItems, setHistoryItems] = useState([
     {
@@ -86,7 +89,13 @@ const HistoryPage = () => {
   };
 
   const handleLogout = () => {
+    // Ensure theme is set to light (white mode) on logout
+    if (theme === "dark") {
+      toggleTheme();
+    }
+    navigate("/");
     console.log("Logout clicked");
+    // TODO: Implement actual logout logic
   };
 
   const sidebarItems = [
@@ -94,6 +103,7 @@ const HistoryPage = () => {
     { icon: PenTool, label: "Quiz Generator", href: "/quiz" },
     { icon: FileText, label: "Content Summarizer", href: "/summarizer" },
     { icon: HelpCircle, label: "PDF Questions", href: "/pdf-questions" },
+    { icon: MessageSquare, label: "Doubt Solver", href: "/doubt-solver" },
     { icon: History, label: "History", href: "/history", active: true  },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];

@@ -15,20 +15,24 @@ import SummarizerGenerator from "@/components/sumgen";
 import SummaryDisplay from "@/components/sumdisplay";
 import { useTheme } from "@/contexts/ThemeContext";
 import { HelpCircle } from "lucide-react";
-
+import { MessageSquare } from "lucide-react";
+import api from '@/api/axios';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 const Summarizer = () => {
   const [currentSummary, setCurrentSummary] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNewSummary, setShowNewSummary] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const userName = "John Doe";
-
+const navigate = useNavigate();
   // Mock previous summaries data
   const previousSummaries = [
     { id: 1, title: "Research Paper Summary", fileName: "ai_trends_2024.pdf", date: "1 day ago", level: "Moderate" },
     { id: 2, title: "Business Report Summary", fileName: "quarterly_report.docx", date: "2 days ago", level: "Brief" },
     { id: 3, title: "Technical Guide Summary", fileName: "programming_guide.txt", date: "1 week ago", level: "Detailed" },
   ];
+  
 
   const handleSummaryGenerated = (summary) => {
     setCurrentSummary(summary);
@@ -60,7 +64,13 @@ const Summarizer = () => {
   };
 
   const handleLogout = () => {
+    // Ensure theme is set to light (white mode) on logout
+    if (theme === "dark") {
+      toggleTheme();
+    }
+    navigate("/");
     console.log("Logout clicked");
+    // TODO: Implement actual logout logic
   };
 
   const sidebarItems = [
@@ -68,6 +78,7 @@ const Summarizer = () => {
     { icon: PenTool, label: "Quiz Generator", href: "/quiz" },
     { icon: FileText, label: "Content Summarizer", href: "/summarizer", active: true  },
     { icon: HelpCircle, label: "PDF Questions", href: "/pdf-questions" },
+    { icon: MessageSquare, label: "Doubt Solver", href: "/doubt-solver" },
     { icon: History, label: "History", href: "/history" },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];

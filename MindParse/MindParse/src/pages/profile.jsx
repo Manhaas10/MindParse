@@ -18,12 +18,12 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { HelpCircle } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
   const userName = "John Doe";
@@ -54,7 +54,13 @@ const ProfilePage = () => {
   };
 
   const handleLogout = () => {
+    // Ensure theme is set to light (white mode) on logout
+    if (theme === "dark") {
+      toggleTheme();
+    }
+    navigate("/");
     console.log("Logout clicked");
+    // TODO: Implement actual logout logic
   };
 
   const sidebarItems = [

@@ -15,6 +15,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     const navigate = useNavigate();
     const handleLogin = async(e) => {
         e.preventDefault();
+        
         // TODO: Implement actual login logic
         try{
             const response = await api.post('/users/login', {
@@ -24,18 +25,18 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
             const result = response.data;
             if (response.status === 200) {
                 toast.success(result);
-                
+                localStorage.setItem("userEmail", email);
                   onClose();
                   navigate('/dashboard');
 
             } else {
                 console.log("Login failed:", response.status);
-                toast.error(`Login failed: ${result}`);
+                toast.error(`Login failed Invalid Email: ${result}`);
             }
         }
         catch (error) {
             console.error("Login error:", error);
-            toast.error("An error occurred during login. Please try again.");
+            toast.error("Login failed. Invalid email or password. Please try again.");
         }
     };
 

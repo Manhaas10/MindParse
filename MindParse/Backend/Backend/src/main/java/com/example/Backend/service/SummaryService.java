@@ -1,8 +1,6 @@
 package com.example.Backend.service;
 
 import com.example.Backend.util.GeminiAPI;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,9 +14,9 @@ public class SummaryService {
 
     public String summarize(String inputText, String level) {
         String prompt = switch (level.toLowerCase()) {
-            case "brief" -> "Summarize briefly: " + inputText;
-            case "moderate" -> "Summarize with moderate detail: " + inputText;
-            default -> "Summarize in detail: " + inputText;
+            case "brief" -> "Quick overview and key points,Summarize briefly : " + inputText;
+            case "moderate" -> "Balanced summary with details,Summarize with moderate detail: " + inputText;
+            default -> "Comprehensive analysis and insights,Summarize in detail: " + inputText;
         };
         
 

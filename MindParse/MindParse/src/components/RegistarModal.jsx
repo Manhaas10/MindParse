@@ -14,6 +14,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
   const handleRegister = async (e) => {
    e.preventDefault();
+   
    if(password !== confirmPassword) {
       toast.error("Passwords don't match!");
       return;
@@ -28,6 +29,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
    if (response.status === 200) {
   toast.success(result);
   onClose();
+  onSwitchToLogin();
 } else {
   toast.error(`Registration failed: ${result}`);
 }

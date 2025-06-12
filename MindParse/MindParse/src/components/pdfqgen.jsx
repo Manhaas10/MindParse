@@ -5,10 +5,11 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, Loader2, HelpCircle, Eye, EyeOff, RotateCcw, Plus } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import toast from 'react-hot-toast';
 import { Badge } from "@/components/ui/badge";
-
-
+import api from '@/api/axios';
+import { v4 as uuidv4 } from 'uuid';
+import { set } from "date-fns";
 
 const PDFQuestionGenerator = ({ onBackToHome }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -17,96 +18,133 @@ const PDFQuestionGenerator = ({ onBackToHome }) => {
   const [questions, setQuestions] = useState([]);
   const [showGenerated, setShowGenerated] = useState(false);
   const [visibleAnswers, setVisibleAnswers] = useState(new Set());
-  const { toast } = useToast();
-
+  const [sessionId, setSessionId] = useState(null);
   const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.type === 'application/pdf') {
+      const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+      if (validTypes.includes(file.type)) {
         setSelectedFile(file);
       } else {
         toast({
           title: "Invalid file type",
-          description: "Please select a PDF file only.",
+          description: "Please select a PDF, DOCX, or TXT file.",
           variant: "destructive",
         });
       }
     }
   };
 
-  const generateQuestions = async () => {
-    if (!selectedFile) {
-      toast({
-        title: "No file selected",
-        description: "Please select a PDF file first.",
-        variant: "destructive",
-      });
-      return;
+ const generateQuestions = async () => {
+  if (!selectedFile) {
+    toast.error("Please select a PDF file first.");
+    return;
+  }
+
+  setIsLoading(true);
+
+  // ✅ Generate or retrieve sessionId
+  const sessionId = uuidv4();
+  localStorage.setItem("pdfSessionId", sessionId);
+
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+  formData.append("difficulty", difficulty === "All Levels" ? "ALL" : difficulty.toUpperCase());
+  formData.append("email", "user@example.com");
+  formData.append("sessionId", sessionId); // ✅ Attach sessionId
+setSessionId(sessionId); // Update state with sessionId
+  try {
+    const response = await api.post("/questions/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+   const { questions: rawText, sessionId: returnedSessionId } = response.data;
+    const lines = rawText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const parsedQuestions = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith("Q")) {
+        const question = lines[i].replace(/^Q\d+:\s*/, "");
+        const answerLine = lines[i + 1] || "";
+        const answer = answerLine.replace(/^A\d+:\s*/, "");
+        parsedQuestions.push({
+          id: parsedQuestions.length + 1,
+          question,
+          answer,
+          difficulty,
+        });
+        i++; // skip answer line
+      }
     }
 
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const mockQuestions = Array.from({ length: 10 }, (_, i) => ({
-        id: i + 1,
-        question: `Question ${i + 1}: What is the main concept discussed in section ${i + 1} of the document? This question tests your understanding of the key principles.`,
-        answer: `Answer ${i + 1}: This is a comprehensive answer that explains the concept in detail. The main point is that understanding this topic requires careful analysis of the content presented in the document.`,
-        difficulty: difficulty === "All Levels" ? 
-          ["Easy", "Medium", "Hard"][Math.floor(Math.random() * 3)] : 
-          difficulty
-      }));
-      
-      setQuestions(mockQuestions);
-      setShowGenerated(true);
-      setVisibleAnswers(new Set());
-      
-      toast({
-        title: "Questions Generated!",
-        description: `Generated ${mockQuestions.length} questions from your PDF.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate questions. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setQuestions(parsedQuestions);
+    setShowGenerated(true);
+    setVisibleAnswers(new Set());
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: error?.response?.data?.message || error.message || "Something went wrong.",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const loadMoreQuestions = async () => {
-    setIsLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const moreQuestions = Array.from({ length: 5 }, (_, i) => ({
-        id: questions.length + i + 1,
-        question: `Additional Question ${i + 1}: What are the implications of the concepts discussed in the latter part of the document?`,
-        answer: `Additional Answer ${i + 1}: This answer provides further insight into the advanced concepts and their practical applications.`,
-        difficulty: difficulty === "All Levels" ? 
-          ["Easy", "Medium", "Hard"][Math.floor(Math.random() * 3)] : 
-          difficulty
-      }));
-      
-      setQuestions(prev => [...prev, ...moreQuestions]);
-      
-      toast({
-        title: "More Questions Loaded!",
-        description: `Added ${moreQuestions.length} more questions.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load more questions.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+
+const loadMoreQuestions = async () => {
+  if (!sessionId) return;
+
+  setIsLoading(true);
+  try {
+    const response = await api.get(`/questions/new-set/${sessionId}`, {
+      params: {
+        difficulty: difficulty === "All Levels" ? "ALL" : difficulty.toUpperCase(),
+      },
+    });
+
+    // const  = response.data;
+     const { questions: rawText, sessionId: returnedSessionId } = response.data;
+    const lines = rawText
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const newQuestions = [];
+
+    for (let i = 0,j=0; i < lines.length; i++) {
+      if (lines[i].startsWith("Q")) {
+        const question = lines[i].replace(/^Q\d+:\s*/, "");
+        const answerLine = lines[i + 1] || "";
+        const answer = answerLine.replace(/^A\d+:\s*/, "");
+        newQuestions.push({
+          id: questions.length + j +1,
+          question,
+          answer,
+          difficulty,
+        });
+        j++;
+        i++; // skip answer line
+      }
     }
-  };
+    console.log("New Questions Loaded:", newQuestions);
+
+    setQuestions(prev => [...prev, ...newQuestions]);
+
+    toast.success(`More Questions Loaded! Added ${newQuestions.length} more questions.`);
+  } catch (error) {
+    toast.error(error?.response?.data?.message || "Could not fetch more questions.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const toggleAnswer = (questionId) => {
     const newVisibleAnswers = new Set(visibleAnswers);
@@ -262,32 +300,32 @@ const PDFQuestionGenerator = ({ onBackToHome }) => {
             AI PDF Question Generator
           </CardTitle>
           <CardDescription className="text-lg text-gray-600 dark:text-gray-300">
-            Upload your PDF document and generate intelligent questions at various difficulty levels
+            Upload your Document and generate intelligent questions at various difficulty levels
           </CardDescription>
         </CardHeader>
         
         <CardContent className="space-y-6">
           {/* File Upload Section */}
           <div className="space-y-2">
-            <Label htmlFor="pdf-upload" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Upload PDF Document
+            <Label htmlFor="file-upload" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Upload PDF, DOCX, or TXT Document
             </Label>
             <div className="relative">
               <Input
-                id="pdf-upload"
+                id="file-upload"
                 type="file"
-                accept=".pdf"
+                accept=".pdf,.docx,.txt"
                 onChange={handleFileChange}
                 className="hidden"
               />
               <Label
-                htmlFor="pdf-upload"
+                htmlFor="file-upload"
                 className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 dark:hover:border-blue-500 dark:hover:bg-blue-900/20 transition-colors"
               >
                 <div className="text-center">
                   <Upload className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500 mb-2" />
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    {selectedFile ? selectedFile.name : 'Click to upload PDF file'}
+                    {selectedFile ? selectedFile.name : 'Click to upload PDF, DOCX, or TXT file'}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                     Max file size: 10MB

@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, Loader2 } from "lucide-react";
-
+import api from '@/api/axios';
+import { toast } from 'react-hot-toast';
 
 
 
@@ -27,32 +28,42 @@ const QuizGenerator = ({ onQuizGenerated }) => {
   };
 
   const generateQuiz = async (file, difficulty) => {
-    // Mock quiz generation - in real app, this would call an API
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-    
-    const mockQuiz = {
-      title: `Quiz from ${file.name}`,
-      difficulty: difficulty,
-      questions: Array.from({ length: 20 }, (_, i) => ({
-        id: i + 1,
-        question: `This is question ${i + 1} based on your document. What is the correct answer for this ${difficulty.toLowerCase()} level question?`,
-        options: [
-          `Option A for question ${i + 1}`,
-          `Option B for question ${i + 1}`,
-          `Option C for question ${i + 1}`,
-          `Option D for question ${i + 1}`
-        ],
-        correctAnswer: Math.floor(Math.random() * 4) // Random correct answer for demo
-      }))
-    };
-   
-    
-    return mockQuiz;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("difficulty", difficulty);
+
+    const userEmail = localStorage.getItem("userEmail"); // or get from context/session
+    formData.append("email", userEmail); // Replace with actual logged-in user's email
+
+    const response = await api.post("/quiz-mcq/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    const rawQuestions = response.data
+    const quiz = {
+    title: `Quiz from ${file.name}`,
+    difficulty,
+    questions: rawQuestions.map((q) => {
+      const options = [q.optionA, q.optionB, q.optionC, q.optionD];
+      const correctIndex = { A: 0, B: 1, C: 2, D: 3 }[q.correctAnswer];
+
+      return {
+        id: q.id,
+        question: q.question,
+        options,
+        correctAnswer: correctIndex
+      };
+    })
   };
+
+    return quiz;
+  };
+
 
  const handleGenerateQuiz = async () => {
   if (!selectedFile) {
-    alert('Please select a file first.');
+    toast.error('Please select a file first.');
     return;
   }
 
@@ -61,11 +72,11 @@ const QuizGenerator = ({ onQuizGenerated }) => {
 
   try {
     const quiz = await generateQuiz(selectedFile, difficulty);
-    // console.log("Quiz generated:", quiz);
+   
     onQuizGenerated(quiz);
   } catch (error) {
     console.error('Error generating quiz:', error);
-    alert('Failed to generate quiz. Please try again.');
+    toast.error('Failed to generate quiz. Please try again.');
   } finally {
     setIsLoading(false);
     console.log("Loading set to false");

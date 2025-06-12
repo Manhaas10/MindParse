@@ -12,7 +12,7 @@ import PDFQuestions from './pages/pdfquestions.jsx';
 import History from './pages/history';
 import Settings from './pages/Settings';
 import { ThemeProvider } from "./contexts/ThemeContext";
-
+import DoubtSolver from './pages/DoubtSolver.jsx';
 function App() {
 
   return (
@@ -26,6 +26,7 @@ function App() {
         <Route path="/pdf-questions" element={<PDFQuestions />} />
         <Route path="/history" element={<History />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/doubt-solver" element={<DoubtSolver />} />
       </Routes>
     </Router>
     <Toaster position="top-right" />

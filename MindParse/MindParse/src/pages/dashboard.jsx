@@ -13,13 +13,20 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useNavigate } from "react-router-dom";
+import { MessageSquare } from "lucide-react";
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const userName = "Sahnam"; // Mock user name
-
+  const navigate = useNavigate();
   const handleLogout = () => {
+    // Ensure theme is set to light (white mode) on logout
+    if (theme === "dark") {
+      toggleTheme();
+    }
+    navigate("/");
     console.log("Logout clicked");
     // TODO: Implement actual logout logic
   };
@@ -29,6 +36,7 @@ const Dashboard = () => {
     { icon: PenTool, label: "Quiz Generator", href: "/quiz" },
     { icon: FileText, label: "Content Summarizer", href: "/summarizer" },
     { icon: HelpCircle, label: "PDF Questions", href: "/pdf-questions" },
+    { icon: MessageSquare, label: "Doubt Solver", href: "/doubt-solver" },
     { icon: History, label: "History", href: "/history" },
     { icon: Settings, label: "Settings", href: "/settings" },
   ];

@@ -1,6 +1,6 @@
 
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header.jsx";
 import Home from "@/components/Home.jsx";
 import Features from "@/components/Features.jsx";
@@ -8,29 +8,52 @@ import AuthSection from "@/components/AuthSection.jsx";
 import LoginModal from "@/components/LoginModal.jsx";
 import RegisterModal from "@/components/RegistarModal.jsx";
 import { Brain } from "lucide-react";
-
-
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const Heii = ()=> {
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+    const { theme, toggleTheme } = useTheme();
+    
+useEffect(() => {
+    if (theme === "dark") {
+       toggleTheme();
+    }
+}, [theme]);
 
+const navigate = useNavigate();
     const handleLogin = () => {
+        if (theme === "dark") {
+       toggleTheme();
+    }
         setIsLoginOpen(true);
         setIsRegisterOpen(false);
     };
     const handleRegister = () => {
+        if (theme === "dark") {
+       toggleTheme();
+    }
         setIsRegisterOpen(true);
         setIsLoginOpen(false);
     };
     const handleGetstarted = () => {
+        if (theme === "dark") {
+       toggleTheme();
+    }
         setIsRegisterOpen(true);
     };
     const switchtoLogin = () => {
+        if (theme === "dark") {
+       toggleTheme();
+    }
         setIsLoginOpen(true);
         setIsRegisterOpen(false);
     };
     const switchtoRegister = () => {
+        if (theme === "dark") {
+       toggleTheme();
+    }
         setIsRegisterOpen(true);
         setIsLoginOpen(false);
     };

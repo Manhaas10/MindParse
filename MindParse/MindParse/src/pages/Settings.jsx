@@ -18,13 +18,14 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { HelpCircle } from "lucide-react";
-
+import { MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 const SettingsPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
   const userName = "John Doe";
@@ -80,7 +81,13 @@ const SettingsPage = () => {
   };
 
   const handleLogout = () => {
+    // Ensure theme is set to light (white mode) on logout
+    if (theme === "dark") {
+      toggleTheme();
+    }
+    navigate("/");
     console.log("Logout clicked");
+    // TODO: Implement actual logout logic
   };
 
   const sidebarItems = [
@@ -88,6 +95,7 @@ const SettingsPage = () => {
     { icon: PenTool, label: "Quiz Generator", href: "/quiz" },
     { icon: FileText, label: "Content Summarizer", href: "/summarizer" },
     { icon: HelpCircle, label: "PDF Questions", href: "/pdf-questions" },
+    { icon: MessageSquare, label: "Doubt Solver", href: "/doubt-solver" },
     { icon: History, label: "History", href: "/history" },
     { icon: Settings, label: "Settings", href: "/settings", active: true  },
   ];

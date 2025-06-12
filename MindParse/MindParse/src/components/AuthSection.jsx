@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { LogIn, UserPlus } from "lucide-react";
+import { useEffect } from "react";
 
 
 const AuthSection = ({ onLogin, onRegister }) => {
+
   return (
     <section className="py-20 bg-gradient-to-r from-gray-50 to-blue-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
