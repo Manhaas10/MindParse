@@ -21,7 +21,7 @@ import { useEffect } from "react";
 const DoubtSolver = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showNewChat, setShowNewChat] = useState(false);
-  const [currentChat, setCurrentChat] = useState(null);
+  const [currentChat, setCurrentChat] = useState([]);
   const [followUpQuestion, setFollowUpQuestion] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [previousChats, setPreviousChats] = useState([]);
@@ -52,13 +52,14 @@ const DoubtSolver = () => {
   //   fetchHistory();
   // }, [userEmail]);
 
-  // useEffect(() => {
-  //   const savedChat = localStorage.getItem("currentChat");
-  //   // console.log("Saved chat from localStorage:", savedChat);
-  //   if (savedChat) {
-  //     setCurrentChat(JSON.parse(savedChat));
-  //   }
-  // }, []);
+  useEffect(() => {
+    const savedChat = localStorage.getItem("currentChat") || [];
+    // console.log("Saved chat from localStorage:", savedChat);
+    if (savedChat) {
+      setCurrentChat(JSON.parse(savedChat));
+    }
+   
+  }, []);
 
   const handleNewChat = () => {
     setCurrentChat(null);
@@ -307,7 +308,7 @@ const DoubtSolver = () => {
               </div>
               
               <div className="space-y-4 mb-6">
-                {currentChat.messages.map((message) => (
+                {currentChat?.messages?.map((message) => (
                   <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-3xl p-4 rounded-lg ${
                       message.type === 'user' 
