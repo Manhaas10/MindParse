@@ -52,14 +52,14 @@ const DoubtSolver = () => {
   //   fetchHistory();
   // }, [userEmail]);
 
-  useEffect(() => {
-    const savedChat = localStorage.getItem("currentChat") || [];
-    // console.log("Saved chat from localStorage:", savedChat);
-    if (savedChat) {
-      setCurrentChat(JSON.parse(savedChat));
-    }
+  // useEffect(() => {
+  //   const savedChat = localStorage.getItem("currentChat") || [];
+  //   // console.log("Saved chat from localStorage:", savedChat);
+  //   if (savedChat) {
+  //     setCurrentChat(JSON.parse(savedChat));
+  //   }
    
-  }, []);
+  // }, []);
 
   const handleNewChat = () => {
     setCurrentChat(null);
