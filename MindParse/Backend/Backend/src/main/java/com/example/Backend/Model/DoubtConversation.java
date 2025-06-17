@@ -19,6 +19,7 @@ public class DoubtConversation {
     private Long id;
 
     private String email;
+    private String title;
 
     private String conversationId; // 🔑 Unique conversation grouping
 

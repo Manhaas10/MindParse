@@ -1,6 +1,7 @@
 package com.example.Backend.controller;
 
 import com.example.Backend.Model.DoubtConversation;
+import com.example.Backend.repository.DoubtConversationRepository;
 import com.example.Backend.service.DoubtSolverService;
 import com.example.Backend.service.FileProcessingService;
 
@@ -20,16 +21,20 @@ public class DoubtSolverController {
     private DoubtSolverService doubtService;
 
     @Autowired
+    private DoubtConversationRepository repository;
+
+    @Autowired
     private FileProcessingService fileProcessor;
 
     // 🤖 Ask a doubt under a conversation
     @PostMapping("/ask")
     public ResponseEntity<String> askDoubt(@RequestParam String email,
                                            @RequestParam String question,
-                                           @RequestParam String conversationId) {
+                                           @RequestParam String conversationId,
+                                           @RequestParam String title) {
         try {
         
-            String answer = doubtService.solveDoubt(email, question, conversationId);
+            String answer = doubtService.solveDoubt(email, question, conversationId,title);
             return ResponseEntity.ok(answer);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
@@ -48,25 +53,33 @@ public class DoubtSolverController {
     }
 
     // 📚 Get all doubts by user
-    @GetMapping("/history")
-    public ResponseEntity<List<DoubtConversation>> getHistory(@RequestParam String email) {
-        return ResponseEntity.ok(doubtService.getAllUserMessages(email));
-    }
+    // @GetMapping("/history")
+    // public ResponseEntity<List<DoubtConversation>> getHistory(@RequestParam String email) {
+    //     return ResponseEntity.ok(doubtService.getAllUserMessages(email));
+    // }
 
     // 📂 Start conversation based on uploaded file content
     @PostMapping("/upload")
     public ResponseEntity<String> uploadAndStartConversation(@RequestParam MultipartFile file,
                                                              @RequestParam String email,
+                                                             @RequestParam String title,
                                                              @RequestParam String conversationId) {
         try {
             String text = fileProcessor.extractText(file);
-            String prompt = "Based on the following content, explain the main concepts:\n" + text;
+            String prompt = text;
 
-            String answer = doubtService.solveDoubt(email, prompt, conversationId);
+            String answer = doubtService.solveDoubt(email, prompt, conversationId,title);
             return ResponseEntity.ok("Conversation started. Initial response:\n\n" + answer);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to process file: " + e.getMessage());
         }
     }
+
+@GetMapping("/history")
+public ResponseEntity<List<DoubtConversation>> getConversationHistory(@RequestParam String email) {
+    List<DoubtConversation> history = doubtService.getLastTwoConversationsByEmail(email);
+    return ResponseEntity.ok(history);
+}
+
 }

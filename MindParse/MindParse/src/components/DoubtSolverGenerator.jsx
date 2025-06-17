@@ -61,7 +61,8 @@ const DoubtSolverGenerator = ({ onChatStarted }) => {
       params.append("email", email);
       params.append("question", question);
       params.append("conversationId", conversationId);
-localStorage.setItem("conversationId", conversationId);
+      params.append("title", question.length > 30 ? question.substring(0, 30) + "..." : question);
+      localStorage.setItem("conversationId", conversationId);
       const response = await api.post("/doubt/ask", params, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
@@ -74,6 +75,7 @@ localStorage.setItem("conversationId", conversationId);
       formData.append("file", selectedFile);
       formData.append("email", email);
       formData.append("conversationId", conversationId);
+      formData.append("title", selectedFile.name.replace(/\.[^/.]+$/, "")); // Use file name as title
       console.log("hi",selectedFile, email, conversationId);
       localStorage.setItem("conversationId", conversationId);
 

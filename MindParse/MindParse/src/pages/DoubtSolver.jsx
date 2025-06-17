@@ -24,32 +24,41 @@ const DoubtSolver = () => {
   const [currentChat, setCurrentChat] = useState(null);
   const [followUpQuestion, setFollowUpQuestion] = useState("");
   const [isSending, setIsSending] = useState(false);
-
+  const [previousChats, setPreviousChats] = useState([]);
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const userName = "John Doe";
-
-  const previousChats = [
-    {
-      id: 1, title: "Physics Concepts", lastMessage: "What is Newton's first law?",
-      date: "1 day ago", messageCount: 5, messages: [], conversationId: 101
-    },
-    {
-      id: 2, title: "Math Problems", lastMessage: "How to solve quadratic equations?",
-      date: "2 days ago", messageCount: 8, messages: [], conversationId: 102
-    },
-    {
-      id: 3, title: "History Questions", lastMessage: "Tell me about World War II",
-      date: "1 week ago", messageCount: 12, messages: [], conversationId: 103
-    }
-  ];
-
+  const [userEmail, setUserEmail] = useState("");
   useEffect(() => {
-    const savedChat = localStorage.getItem("currentChat");
-    if (savedChat) {
-      setCurrentChat(JSON.parse(savedChat));
-    }
+    const email = localStorage.getItem("userEmail");
+    setUserEmail(email);
   }, []);
+
+  // useEffect(() => {
+  //   const fetchHistory = async () => {
+  //     if (!userEmail) return;
+
+  //     try {
+  //       const response = await api.get(`/doubt/history`, {
+  //         params: { email: userEmail },
+  //       });
+  //       console.log("Fetched history:", response.data);
+  //       setPreviousChats(response.data);
+  //     } catch (error) {
+  //       console.error("Error fetching history:", error);
+  //     }
+  //   };
+
+  //   fetchHistory();
+  // }, [userEmail]);
+
+  // useEffect(() => {
+  //   const savedChat = localStorage.getItem("currentChat");
+  //   // console.log("Saved chat from localStorage:", savedChat);
+  //   if (savedChat) {
+  //     setCurrentChat(JSON.parse(savedChat));
+  //   }
+  // }, []);
 
   const handleNewChat = () => {
     setCurrentChat(null);
@@ -57,6 +66,7 @@ const DoubtSolver = () => {
   };
 
   const handleSelectPreviousChat = (chat) => {
+    console.log("Selected previous chat:", chat);
     setCurrentChat(chat);
     setShowNewChat(false);
     localStorage.setItem("currentChat", JSON.stringify(chat));
@@ -72,7 +82,6 @@ const DoubtSolver = () => {
     if (theme === "dark") toggleTheme();
     navigate("/");
   };
-
   const handleFollowUpSend = async () => {
     if (!followUpQuestion.trim() || !currentChat) return;
 
@@ -91,6 +100,7 @@ const DoubtSolver = () => {
       const em = localStorage.getItem("userEmail");
       const params = new URLSearchParams();
       params.append("email", em || "");
+      params.append("title", currentChat.title || "Follow-up Question");
       params.append("question", followUpQuestion);
       params.append("conversationId", currentChat.conversationId.toString());
 
@@ -259,21 +269,19 @@ const DoubtSolver = () => {
             
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Previous Chats</h3>
             <div className="space-y-2">
-              {previousChats.map((chat) => (
+              {previousChats.slice(0,2).map((chat) => (
                 <button
                   key={chat.id}
                   onClick={() => handleSelectPreviousChat(chat)}
                   className="w-full text-left p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 >
                   <p className="font-medium text-sm text-gray-900 dark:text-white truncate">{chat.title}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{chat.lastMessage}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{chat.question}</p>
                   <div className="flex justify-between items-center mt-1">
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {chat.date}
+                      {chat.timestamp ? new Date(chat.timestamp).toLocaleDateString() : 'No date'}
                     </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {chat.messageCount} messages
-                    </span>
+                   
                   </div>
                 </button>
               ))}
