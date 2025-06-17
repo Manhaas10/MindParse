@@ -1,11 +1,9 @@
-// src/api/axios.js
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api', // change if needed
+  baseURL: import.meta.env.VITE_REACT_APP_BACKEND_URL,
   headers: {
     'Content-Type': 'application/json'
   }
 });
-
 export default api;
