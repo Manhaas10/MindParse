@@ -1,7 +1,8 @@
 # 🧠 MindParse
 
 MindParse is an intelligent web platform that transforms documents into personalized learning tools. Upload a file and generate quizzes, summaries, or question-answer sets — all backed by history tracking and a clean user experience.
-Explorehere mindparse.netlify.app
+
+-Explore here mindparse.netlify.app
 
 ---
 
