@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const Heii = ()=> {
+
     const [isLoginOpen, setIsLoginOpen] = useState(false);
     const [isRegisterOpen, setIsRegisterOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
@@ -20,6 +21,9 @@ useEffect(() => {
     if (theme === "dark") {
        toggleTheme();
     }
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userEmail");
 }, [theme]);
 
 const navigate = useNavigate();

@@ -26,6 +26,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
             if (response.status === 200) {
                 toast.success(result);
                 localStorage.setItem("userEmail", email);
+                localStorage.setItem("isAuthenticated", "true");
                   onClose();
                   navigate('/dashboard');
 

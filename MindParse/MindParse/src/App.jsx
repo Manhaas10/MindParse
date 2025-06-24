@@ -1,39 +1,73 @@
-import { useState } from 'react'
 import { Toaster } from 'react-hot-toast';
-
-import './index.css'
+import './index.css';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Heii from './pages/heii.jsx'
+import Heii from './pages/heii.jsx';
 import Dashboard from './pages/dashboard';
 import Quiz from './pages/quiz';
 import Summarizer from './pages/summarizer';
 import PDFQuestions from './pages/pdfquestions.jsx';
 import History from './pages/history';
 import Settings from './pages/Settings';
-import { ThemeProvider } from "./contexts/ThemeContext";
 import DoubtSolver from './pages/DoubtSolver.jsx';
-function App() {
+import PrivateRoute from "./components/PrivateRoute";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
+function App() {
   return (
     <ThemeProvider>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Heii />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/quiz" element={<Quiz />} />
-        <Route path="/summarizer" element={<Summarizer />} />
-        <Route path="/pdf-questions" element={<PDFQuestions />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/doubt-solver" element={<DoubtSolver />} />
-      </Routes>
-    </Router>
-    <Toaster position="top-right" />
+      <Router>
+        <Routes>
+          {/* Public Route */}
+          <Route path="/" element={<Heii />} />
 
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+
+          <Route path="/quiz" element={
+            <PrivateRoute>
+              <Quiz />
+            </PrivateRoute>
+          } />
+
+          <Route path="/summarizer" element={
+            <PrivateRoute>
+              <Summarizer />
+            </PrivateRoute>
+          } />
+
+          <Route path="/pdf-questions" element={
+            <PrivateRoute>
+              <PDFQuestions />
+            </PrivateRoute>
+          } />
+
+          <Route path="/history" element={
+            <PrivateRoute>
+              <History />
+            </PrivateRoute>
+          } />
+
+          <Route path="/settings" element={
+            <PrivateRoute>
+              <Settings />
+            </PrivateRoute>
+          } />
+
+          <Route path="/doubt-solver" element={
+            <PrivateRoute>
+              <DoubtSolver />
+            </PrivateRoute>
+          } />
+        </Routes>
+      </Router>
+      <Toaster position="top-right" />
     </ThemeProvider>
-
-  )
+  );
 }
 
-export default App
+export default App;
